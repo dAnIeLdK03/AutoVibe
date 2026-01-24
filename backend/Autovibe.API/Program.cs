@@ -15,7 +15,7 @@ builder.Services.AddControllers();
 
 var jwtKey = builder.Configuration["Jwt:Key"] ??
     throw new InvalidOperationException("Jwt:Key not found in configuration.");
-var SymmetricSecurityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]));
+var SymmetricSecurityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"] ?? string.Empty));
 
 var tokenValidationParameters = new TokenValidationParameters
 {

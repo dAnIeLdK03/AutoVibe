@@ -4,6 +4,10 @@ using Autovibe.API.Data;
 using Autovibe.API.DTOs.Users;
 using Autovibe.API.Models;
 using BCrypt.Net;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 
 
 namespace Autovibe.API.Controllers
@@ -14,10 +18,12 @@ namespace Autovibe.API.Controllers
     public class AuthController : ControllerBase
     {
         private readonly AppDbContext _context;
+        private readonly IConfiguration _configuration;
 
-        public AuthController(AppDbContext context)
+        public AuthController(AppDbContext context, IConfiguration configuration)
         {
             _context = context;
+            _configuration = configuration;
         }
 
         [HttpPost("register")]
@@ -79,7 +85,7 @@ namespace Autovibe.API.Controllers
         }
 
         [HttpPost("login")]
-        public async Task<ActionResult<UserDto>> Login([FromBody] UserLoginDto loginDto)
+        public async Task<ActionResult<AuthResponseDto>> Login([FromBody] UserLoginDto loginDto)
         {
             try
             {
@@ -100,6 +106,28 @@ namespace Autovibe.API.Controllers
                     return Unauthorized("Invalid password.");
                 }
 
+                var jwtKey = _configuration["Jwt:Key"];
+                var expirationMinutes = int.Parse(_configuration["Jwt:ExpirationInMinutes"] ?? "60");
+
+                var claims = new List<Claim>
+                {
+                    new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                    new Claim(ClaimTypes.Email, user.Email)
+                };
+
+
+                var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
+                var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+                var token = new JwtSecurityToken(
+                    issuer: "Autovibe.API",
+                    audience: "Autovibe.API",
+                    claims: claims,
+                    expires: DateTime.Now.AddMinutes(expirationMinutes),
+                    signingCredentials: credentials
+                );
+                var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
+
                 var result = new UserDto
                 {
                     Id = user.Id,
@@ -111,7 +139,13 @@ namespace Autovibe.API.Controllers
                     UpdatedAt = user.UpdatedAt ?? DateTime.Now
                 };
 
-                return Ok(result);
+                var authResponse = new AuthResponseDto
+                {
+                    Token = tokenString,
+                    User = result
+                };
+
+                return Ok(authResponse);
             }
             catch (Exception ex)
             {
