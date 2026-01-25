@@ -1,6 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit'
+import type { PayloadAction } from '@reduxjs/toolkit'
 
-interface Car{
+export interface Car{
     id: number;
     make: string; 
     model: string;
@@ -10,10 +11,10 @@ interface Car{
     fuelType: string;
     transmission: string;
     color: string;
-    shorDescription?: string;
+    shortDescription?: string;
 }
 
-interface CarState{
+export interface CarState{
     cars: Car[];
     selectedCar: Car | null;
     loading: boolean;
@@ -31,26 +32,26 @@ const carsSlice = createSlice({
     name: 'cars',
     initialState,
     reducers: {
-        setCars : (state, action) => {
+        setCars : (state, action: PayloadAction<Car[]>) => {
             state.cars = action.payload;
         },
-        setSelectedCar: (state, action) => {
+        setSelectedCar: (state, action: PayloadAction<Car | null>) => {
             state.selectedCar = action.payload;
         },
-        addCar: (state, action) => {
+        addCar: (state, action: PayloadAction<Car>) => {
             state.cars.push(action.payload);
         },
-        updateCar: (state, action) => {
+        updateCar: (state, action: PayloadAction<Car>) => {
             const index = state.cars.findIndex(car => car.id === action.payload.id);
             state.cars[index] = action.payload;
         },
-        removeCar: (state, action) => {
+        removeCar: (state, action: PayloadAction<number>) => {
             state.cars = state.cars.filter(car => car.id !== action.payload);
         },
-        setLoading: (state, action) => {
+        setLoading: (state, action: PayloadAction<boolean>) => {
             state.loading = action.payload;
         },
-        setError: (state, action) => {
+        setError: (state, action: PayloadAction<string | null>) => {
             state.error = action.payload;
         },
         clearError: (state) => {

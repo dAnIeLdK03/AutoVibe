@@ -1,6 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit'
+import type { PayloadAction } from '@reduxjs/toolkit'
 
-interface AuthState{
+export interface AuthState{
     user: {
         id: number;
         email: string;
@@ -24,7 +25,7 @@ const authSlice = createSlice({
     name: 'auth',
     initialState,
     reducers: {
-        setCredentials: (state, action) => {
+            setCredentials: (state, action: PayloadAction<{ user: AuthState['user'], token: string }>) => {
             state.user = action.payload.user;
             state.token = action.payload.token;
             state.isAuthenticated = true;
@@ -38,6 +39,8 @@ const authSlice = createSlice({
     }
 
 })
+
+
 
 export const { setCredentials, logout } = authSlice.actions;
 
