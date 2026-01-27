@@ -1,15 +1,15 @@
 import { api } from './api';
 
-interface Car{
-    Id: number;
-    Make: string;
-    Model: string;
-    Year: number;
-    Price: number;
-    Mileage: number;
-    FuelType: string;
-    Transmission: string;
-    Color: string;
+export interface Car{
+    id: number;
+    make: string;
+    model: string;
+    year: number;
+    price: number;
+    mileage: number;
+    fuelType: string;
+    transmission: string;
+    color: string;
     shortDescription?: string;
 };
 

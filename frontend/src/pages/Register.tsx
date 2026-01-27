@@ -1,7 +1,7 @@
 import React from 'react'
 import { useState } from 'react';
-import { useNavigate } from 'react-router';
-import { Link } from 'react-router';
+import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { register } from '../services/AuthService';
 
 function Register() {
@@ -25,7 +25,7 @@ function Register() {
     setLoading(true);
     try{
       await register({ email, password, confirmPassword, firstName, lastName, phoneNumber});
-      navigate("login");
+      navigate("/login");
     }catch(error : any){
       setError("Something went wrong.");
     }
@@ -88,7 +88,7 @@ function Register() {
                   confirm Password
                 </label>
                 <input
-                  type="confirmPassword"
+                  type="password"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   className="w-full px-5 py-4 bg-slate-900/50 border border-slate-700 rounded-2xl text-white outline-none focus:ring-2 focus:ring-[#70FFE2] focus:border-transparent transition-all duration-300 placeholder:text-slate-600"
@@ -102,7 +102,7 @@ function Register() {
                   First Name
                 </label>
                 <input
-                  type="firstName"
+                  type="text"
                   value={firstName}
                   onChange={(e) => setFirstName(e.target.value)}
                   className="w-full px-5 py-4 bg-slate-900/50 border border-slate-700 rounded-2xl text-white outline-none focus:ring-2 focus:ring-[#70FFE2] focus:border-transparent transition-all duration-300 placeholder:text-slate-600"
@@ -116,7 +116,7 @@ function Register() {
                   Last Name
                 </label>
                 <input
-                  type="lastName"
+                  type="text"
                   value={lastName}
                   onChange={(e) => setLastName(e.target.value)}
                   className="w-full px-5 py-4 bg-slate-900/50 border border-slate-700 rounded-2xl text-white outline-none focus:ring-2 focus:ring-[#70FFE2] focus:border-transparent transition-all duration-300 placeholder:text-slate-600"
@@ -130,7 +130,7 @@ function Register() {
                   Phone Number
                 </label>
                 <input
-                  type="phoneNumber"
+                  type="tel"
                   value={phoneNumber}
                   onChange={(e) => setPhoneNumber(e.target.value)}
                   className="w-full px-5 py-4 bg-slate-900/50 border border-slate-700 rounded-2xl text-white outline-none focus:ring-2 focus:ring-[#70FFE2] focus:border-transparent transition-all duration-300 placeholder:text-slate-600"
