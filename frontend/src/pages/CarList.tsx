@@ -3,11 +3,12 @@ import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import type { RootState } from '../stores/store';
 import { getCars } from '../services/carsService';
-import { setCars, setLoading, setError, clearError } from '../stores/carsSlice';
+import { setCars, setLoading, setError, clearError } from '../stores/carsSlice';  
+import { useNavigate } from 'react-router-dom';
 
 
 function CarList() {
-
+  const navigate = useNavigate();
   const dispatch = useDispatch();
   const { cars, loading, error } = useSelector((state: RootState) => state.cars);
   
@@ -72,7 +73,7 @@ function CarList() {
                     <p className="text-[#70FFE2] text-2xl font-black">
                       €{car.price.toLocaleString()}
                     </p>
-                    <p className="text-[10px] text-slate-500 uppercase tracking-widest">Price per day</p>
+                    <p className="text-[10px] text-slate-500 uppercase tracking-widest">Price</p>
                   </div>
                 </div>
 
@@ -84,7 +85,7 @@ function CarList() {
                   <div className="flex space-x-3 text-slate-500 text-xs">
                   </div>
                   
-                  <button className="px-5 py-2.5 bg-slate-700 hover:bg-[#70FFE2] text-white hover:text-slate-900 font-bold rounded-xl transition-all duration-300 text-sm shadow-lg">
+                  <button className="px-5 py-2.5 bg-slate-700 hover:bg-[#70FFE2] text-white hover:text-slate-900 font-bold rounded-xl transition-all duration-300 text-sm shadow-lg" onClick={() => navigate(`/cars/${car.id}`)}>
                     Details
                   </button>
                 </div>

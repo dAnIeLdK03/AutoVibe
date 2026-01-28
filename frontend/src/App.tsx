@@ -8,6 +8,7 @@ import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import CarList from "./pages/CarList";
+import CarDetails from "./pages/CarDetails";
 
 function App() {
   return (
@@ -17,6 +18,8 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/cars" element={<CarList />} />
+        <Route path="/cars/:id" element={<CarDetails />} />
+
       </Routes>
     </BrowserRouter>
   );

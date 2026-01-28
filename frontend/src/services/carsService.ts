@@ -13,7 +13,7 @@ export interface Car{
     shortDescription?: string;
 };
 
-interface CarDetails{
+export interface CarDetails{
     id: number;
     make: string;
     model: string;
