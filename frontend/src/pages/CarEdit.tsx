@@ -3,9 +3,7 @@ import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useParams } from "react-router";
 import { useNavigate } from "react-router-dom";
-import { getCarById } from "../services/carsService";
-import { updateCar } from "../stores/carsSlice";
-import { useDispatch } from "react-redux";
+import { getCarById, updateCar } from "../services/carsService";
 
 export default function CarEdit() {
   const { id } = useParams();
@@ -14,14 +12,8 @@ export default function CarEdit() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  if (id === null) {
-    return <h2>No car selected.</h2>;
-  }
-  if (user === null) {
-    return <h2>You are not logged in.</h2>;
-  }
+ 
   const navigate = useNavigate();
-  const dispatch = useDispatch();
 
   const [car, setCar] = useState({
     make: "",
@@ -34,26 +26,32 @@ export default function CarEdit() {
     color: "",
     description: "",
 
-    userId: user.id,
+    sellerId: 0,
+
   });
 
-  const { userId, ...updateData } = car;
+ 
 
   useEffect(() => {
     const fetchCar = async () => {
+      if(!id || !user?.id){
+        return;
+      }
       setLoading(true);
       setError(null);
       try {
-        const car = await getCarById(Number(id));
-        fetch(`/api/cars/${id}`)
-          .then((res) => res.json())
-          .then((data) => {
-            setCar(data);
-            setLoading(false);
-          });
-        if (user.id !== car.sellerId) {
-          navigate("/cars");
+        const data = await getCarById(Number(id));
+
+        if(id && data.sellerId !== user?.id){
+          setError("You are not the owner of this car.");
+          setTimeout(() => {
+            navigate("/cars");
+          }, 2000);
+          return;
         }
+
+        setCar(data);
+        
       } catch (error) {
         setError("Unable to load car.");
       } finally {
@@ -61,21 +59,77 @@ export default function CarEdit() {
       }
     };
     fetchCar();
-  }, [id, user, navigate]);
+  }, [id, user?.id, navigate]);
+
+  
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if(!id) return;
     setLoading(true);
     setError(null);
+    
+    // Client-side validation
+    if (!car.make.trim()) {
+      setError("Марката е задължителна.");
+      setLoading(false);
+      return;
+    }
+    if (!car.model.trim()) {
+      setError("Моделът е задължителен.");
+      setLoading(false);
+      return;
+    }
+    if (car.year < 1900 || car.year > 2100) {
+      setError("Годината трябва да е между 1900 и 2100.");
+      setLoading(false);
+      return;
+    }
+    if (car.price <= 0) {
+      setError("Цената трябва да е по-голяма от 0.");
+      setLoading(false);
+      return;
+    }
+    
     try {
-      await dispatch(updateCar({ id: Number(id), ...updateData }));
+      const {sellerId, ...payload } = car;
+      await updateCar(Number(id), payload);
       navigate(`/cars/${id}`);
-    } catch (err) {
-      setError("Unable to update car.");
+    } catch (error: any) {
+      // Extract the actual error message from the backend
+      let errorMessage = "Unable to update car.";
+      
+      if (error.response?.data) {
+        const data = error.response.data;
+        
+        // Handle ModelState errors (validation errors from ASP.NET)
+        if (typeof data === 'object' && !data.message) {
+          const errors: string[] = [];
+          for (const key in data) {
+            if (Array.isArray(data[key])) {
+              errors.push(...data[key]);
+            } else if (typeof data[key] === 'string') {
+              errors.push(data[key]);
+            }
+          }
+          errorMessage = errors.length > 0 ? errors.join(', ') : JSON.stringify(data);
+        } else {
+          errorMessage = data.message || data || errorMessage;
+        }
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
+      console.error("Update car error:", error.response?.data || error);
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
   };
+
+  if(!id){
+    return <h2>No car selected.</h2>;
+  }
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
       <div className="bg-white shadow-lg rounded-lg p-8 w-full max-w-md">

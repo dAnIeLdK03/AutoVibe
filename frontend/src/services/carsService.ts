@@ -44,7 +44,7 @@ interface CreateCarRequest{
     color: string;
     description: string;
 
-    userId: number;
+    userId: number | null;
 };
 
 interface UpdateCarRequest{
@@ -75,9 +75,8 @@ export const createCar = async(data: CreateCarRequest): Promise<CarDetails> => {
 };
 
 export const updateCar = async(id: number, data: UpdateCarRequest): Promise<CarDetails> => {
-    const response = await api.put(`/cars/${id}`, data)
-        return response.data;
-    
+    const response = await api.put(`/cars/${id}`, data);
+    return response.data;
 };
 
 export const deleteCar = async(id: number): Promise<void> => {
