@@ -12,6 +12,8 @@ export interface Car{
     transmission: string;
     color: string;
     shortDescription?: string;
+
+    userId: number;
 }
 
 export interface CarState{

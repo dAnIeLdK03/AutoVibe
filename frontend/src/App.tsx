@@ -11,6 +11,7 @@ import CarList from "./pages/CarList";
 import CarDetails from "./pages/CarDetails";
 import CarCreate from "./pages/CarCreate";
 import CarEdit from "./pages/CarEdit";
+import MyCars from "./pages/MyCars";
 
 function App() {
   return (
@@ -23,7 +24,7 @@ function App() {
         <Route path="/cars/:id" element={<CarDetails />} />
         <Route path="/cars/new" element={<CarCreate />} />
         <Route path="/cars/:id/edit" element={<CarEdit />} />
-
+        <Route path="/home" element={<MyCars />} />
       </Routes>
     </BrowserRouter>
   );
