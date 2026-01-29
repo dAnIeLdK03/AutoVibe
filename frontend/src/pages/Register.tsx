@@ -35,6 +35,7 @@ function Register() {
   }
 
   return (
+    
     <div className="min-h-screen flex items-center justify-center bg-slate-900 font-sans">
           {/* Основна карта */}
           <div className="w-full max-w-md p-8 bg-slate-800/50 backdrop-blur-xl rounded-3xl border border-slate-700 shadow-2xl">
