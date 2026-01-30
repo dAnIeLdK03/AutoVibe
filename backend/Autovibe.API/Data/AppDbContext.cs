@@ -25,6 +25,16 @@ public class AppDbContext : DbContext
             .WithMany(u => u.Cars)
             .HasForeignKey(c => c.UserId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        // Конфигурирай ImageUrls да обработва празни стрингове като празен списък
+        modelBuilder.Entity<Car>()
+            .Property(c => c.ImageUrls)
+            .HasConversion(
+                v => v == null || v.Count == 0 ? "[]" : System.Text.Json.JsonSerializer.Serialize(v),
+                v => string.IsNullOrEmpty(v) || v == "[]" 
+                    ? new List<string>() 
+                    : System.Text.Json.JsonSerializer.Deserialize<List<string>>(v) ?? new List<string>()
+            );
     }
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
     { }

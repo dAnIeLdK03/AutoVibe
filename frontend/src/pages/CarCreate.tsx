@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom';
 import { createCar } from '../services/carsService';
+import { uploadImage } from '../services/imageService';
 
 export function CarCreate() {
     const {user} = useSelector((state: RootState) => state.auth);
@@ -24,6 +25,10 @@ export function CarCreate() {
 
         userId: user.id
     });
+    
+    const [imageFile, setImageFile] = useState<File | null>(null);
+    const [imagePreview, setImagePreview] = useState<string | null>(null);
+
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
@@ -58,9 +63,20 @@ export function CarCreate() {
             setLoading(false);
             return;
         }
+        let imageUrls: string[] | undefined;
+        if(imageFile){
+          try{
+            const imageUrl = await uploadImage(imageFile);
+            imageUrls = [imageUrl];
+          }catch(error){
+            setError("Unable to upload image.");
+            setLoading(false);
+            return;
+          }
+        }
         
         try{
-           await createCar({ ...car, userId: user.id });
+           await createCar({ ...car, userId: user.id, imageUrls: imageUrls });
             navigate("/cars");
         }catch(error: any){
             let errorMessage = "Unable to create car.";
@@ -97,6 +113,28 @@ export function CarCreate() {
             navigate("/login");
         }
     },[user, navigate])
+
+    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const selectedFile = e.target.files?.[0] || null;
+      if(selectedFile){
+        if (imagePreview) {
+          URL.revokeObjectURL(imagePreview);
+        }
+        
+        setImageFile(selectedFile);
+        const objectUrl = URL.createObjectURL(selectedFile);
+        setImagePreview(objectUrl);
+      }
+    };
+
+    // Cleanup: освободи URL при unmount или промяна на imagePreview
+    useEffect(() => {
+      return () => {
+        if (imagePreview) {
+          URL.revokeObjectURL(imagePreview);
+        }
+      };
+    }, [imagePreview]);
 
     return (
   <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
@@ -198,6 +236,17 @@ export function CarCreate() {
           onChange={(e) => setCar({ ...car, description: e.target.value })}
           className="w-full border p-2 rounded h-24"
         />
+        <label className="block text-sm font-medium text-gray-700">
+          Image
+        <input 
+          type='file'
+          name="image"
+          accept='image/*'
+          onChange={handleImageChange}
+          className="w-full border p-2 rounded"
+        />
+        </label>
+        {imagePreview && <img src={imagePreview} alt="Image preview" className="w-full h-auto" />}
 
         <button
           type="submit"

@@ -26,25 +26,27 @@ namespace Autovibe.API.Controllers
         public async Task<ActionResult<IEnumerable<CarListDto>>> GetCars()
         {
             var cars = await _context.Cars
-                .Select(c => new CarListDto
-                {
-                    Id = c.Id,
-                    Make = c.Make,
-                    Model = c.Model,
-                    Year = c.Year,
-                    Price = c.Price,
-                    Mileage = c.Mileage,
-                    FuelType = c.FuelType,
-                    Transmission = c.Transmission,
-                    Color = c.Color,
-                    ShortDescription = c.Description != null && c.Description.Length > 100
-                    ? c.Description.Substring(0, 100) + "..."
-                    : c.Description,
-                    UserId = c.UserId
-                })
                 .ToListAsync();
 
-            return Ok(cars);
+            var carDtos = cars.Select(c => new CarListDto
+            {
+                Id = c.Id,
+                Make = c.Make,
+                Model = c.Model,
+                Year = c.Year,
+                Price = c.Price,
+                Mileage = c.Mileage,
+                FuelType = c.FuelType,
+                Transmission = c.Transmission,
+                Color = c.Color,
+                ShortDescription = c.Description != null && c.Description.Length > 100
+                ? c.Description.Substring(0, 100) + "..."
+                : c.Description,
+                UserId = c.UserId,
+                ImageUrls = c.ImageUrls ?? new List<string>()
+            }).ToList();
+
+            return Ok(carDtos);
         }
 
         [AllowAnonymous]
@@ -78,7 +80,9 @@ namespace Autovibe.API.Controllers
                 SellerId = car.UserId,
                 SellerFirstName = car.User.FirstName,
                 SellerLastName = car.User.LastName,
-                SellerPhoneNumber = car.User.PhoneNumber
+                SellerPhoneNumber = car.User.PhoneNumber,
+                
+                ImageUrls = car.ImageUrls ?? new List<string>()
             };
             return Ok(carDetails);
         }
@@ -150,7 +154,7 @@ namespace Autovibe.API.Controllers
                 SellerLastName = createdCar.User.LastName,
                 SellerPhoneNumber = createdCar.User.PhoneNumber,
 
-                ImageUrls = createdCar.ImageUrls
+                ImageUrls = createdCar.ImageUrls ?? new List<string>()
             };
 
             return CreatedAtAction(nameof(GetCar), new { id = result.Id }, result);
@@ -217,7 +221,7 @@ namespace Autovibe.API.Controllers
                 SellerLastName = createdCar.User.LastName,
                 SellerPhoneNumber = createdCar.User.PhoneNumber,
 
-                ImageUrls = createdCar.ImageUrls
+                ImageUrls = createdCar.ImageUrls ?? new List<string>()
             };
         
             return Ok(result);
@@ -241,22 +245,40 @@ namespace Autovibe.API.Controllers
             return NoContent();
         }
 
-        [HttpPost("{id}/upload-image")]
+        //POST: api/cars/upload-image
+        [HttpPost("upload-image")]
         [Authorize]
-        public async Task<ActionResult> UploadImage(int id, IFormFile file)
+        public async Task<ActionResult> UploadImage(IFormFile file)
         {
             if(file == null || file.Length == 0)
             {
                 return BadRequest("No file uploaded.");
             }
+
+            // Валидация на файл тип
+            var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif", ".webp" };
+            var fileExtension = Path.GetExtension(file.FileName).ToLowerInvariant();
+            if (!allowedExtensions.Contains(fileExtension))
+            {
+                return BadRequest("Invalid file type. Only images are allowed.");
+            }
+
+            // Валидация на размер (например максимум 5MB)
+            const long maxFileSize = 5 * 1024 * 1024; // 5MB
+            if (file.Length > maxFileSize)
+            {
+                return BadRequest("File size exceeds the maximum allowed size of 5MB.");
+            }
+
             string folderPath = Path.Combine("images", "cars");
-            string serverPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", "cars");
+            string serverPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", folderPath);
+            
             if (!Directory.Exists(serverPath))
             {
                 Directory.CreateDirectory(serverPath);
             }
 
-            string fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+            string fileName = Guid.NewGuid().ToString() + fileExtension;
             string fullPath = Path.Combine(serverPath, fileName);
 
             using (var stream = new FileStream(fullPath, FileMode.Create))
@@ -264,9 +286,9 @@ namespace Autovibe.API.Controllers
                 await file.CopyToAsync(stream);
             }
 
-            string imageUrl = $"/{folderPath}/{fileName}".Replace("\\", "/");
+            string imageUrl = $"/{folderPath.Replace("\\", "/")}/{fileName}";
 
-            return Ok(new {url = imageUrl});
+            return Ok(new { url = imageUrl });
         }
     }
 }

@@ -1,5 +1,4 @@
-import React from 'react'
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import type { RootState } from '../stores/store';
 import { getCars } from '../services/carsService';
@@ -19,6 +18,8 @@ function CarList() {
       dispatch(clearError());
       try{
         const data = await getCars();
+        console.log("Cars data:", data);
+        console.log("First car imageUrls:", data[0]?.imageUrls);
         dispatch(setCars(data));
       }catch{
         dispatch(setError("Unable to load cars."));
@@ -55,6 +56,7 @@ function CarList() {
           </button>
         </div>
 
+        
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {cars.map((car) => (
             <div 
@@ -62,8 +64,22 @@ function CarList() {
               className="group relative bg-slate-800/50 backdrop-blur-xl rounded-3xl border border-slate-700 overflow-hidden hover:border-[#70FFE2]/50 transition-all duration-500 shadow-2xl flex flex-col"
             >
               <div className="relative h-56 bg-slate-700 overflow-hidden">
+                {car.imageUrls && car.imageUrls.length > 0 ? (
+                  <img 
+                    src={`http://localhost:5258${car.imageUrls[0]}`} 
+                    alt={`${car.make} ${car.model}`} 
+                    className="w-full h-full object-cover object-center"
+                    onError={() => {
+                      console.error("Image failed to load:", car.imageUrls?.[0]);
+                      console.error("Full URL:", `http://localhost:5258${car.imageUrls?.[0]}`);
+                    }}
+                  />
+                ) : (
+                  <div className="w-full h-full bg-gradient-to-br from-slate-700 to-slate-800 flex items-center justify-center">
+                    <span className="text-slate-500 text-sm">No image</span>
+                  </div>
+                )}
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 to-transparent z-10" />
-               
                 <span className="absolute top-4 left-4 z-20 bg-slate-900/80 backdrop-blur-md text-[#70FFE2] text-xs font-bold px-3 py-1.5 rounded-full border border-slate-700">
                   {car.year}
                 </span>

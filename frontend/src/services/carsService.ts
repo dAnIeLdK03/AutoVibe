@@ -14,7 +14,7 @@ export interface Car{
 
     userId: number;
 
-    imageUrls?: string;
+    imageUrls?: string[];
 };
 
 export interface CarDetails{
@@ -36,7 +36,7 @@ export interface CarDetails{
     sellerLastName: string;
     sellerPhoneNumber: string;
 
-    imageUrls?: string;
+    imageUrls?: string[];
 
 };
 
@@ -53,7 +53,7 @@ interface CreateCarRequest{
 
     userId: number | null;
 
-    imageUrls?: string;
+    imageUrls?: string[];
 
 };
 
@@ -68,7 +68,7 @@ interface UpdateCarRequest{
     color: string;
     description: string;
 
-    imageUrls?: string;
+    imageUrls?: string[];
 
 };
 
@@ -87,8 +87,8 @@ export const createCar = async(data: CreateCarRequest): Promise<CarDetails> => {
     return response.data;
 };
 
-export const updateCar = async(id: number, data: UpdateCarRequest): Promise<CarDetails> => {
-    const response = await api.put(`/cars/${id}`, data);
+export const updateCar = async(id: number, data: UpdateCarRequest, imageUrls?: string[]): Promise<CarDetails> => {
+    const response = await api.put(`/cars/${id}`, { ...data, imageUrls: imageUrls });
     return response.data;
 };
 

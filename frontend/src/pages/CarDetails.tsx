@@ -1,4 +1,3 @@
-import React from "react";
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { deleteCar, getCarById } from "../services/carsService";
@@ -25,6 +24,8 @@ export default function CarDetails() {
     sellerFirstName: "",
     sellerLastName: "",
     sellerPhoneNumber: "",
+
+    imageUrls: [],
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -91,7 +92,63 @@ export default function CarDetails() {
         <h1 className="text-4xl font-bold text-white mb-6 text-center">
           {car.make} {car.model} {car.year}
         </h1>
+        
+        {/* Главна снимка */}
+        <div className="mb-8 rounded-2xl overflow-hidden shadow-2xl">
+          {car.imageUrls && car.imageUrls.length > 0 ? (
+            <div className="relative">
+              <img 
+                src={`http://localhost:5258${car.imageUrls[0]}`} 
+                alt={`${car.make} ${car.model}`} 
+                className="w-full h-[500px] md:h-[600px] object-cover"
+                onError={() => {
+                  console.error("Image failed to load:", car.imageUrls?.[0]);
+                }}
+              />
+              <div className="absolute top-4 left-4 bg-slate-900/80 backdrop-blur-md text-[#70FFE2] text-sm font-bold px-4 py-2 rounded-full border border-slate-700">
+                {car.year}
+              </div>
+              {car.imageUrls.length > 1 && (
+                <div className="absolute bottom-4 right-4 bg-slate-900/80 backdrop-blur-md text-white text-sm font-bold px-4 py-2 rounded-full border border-slate-700">
+                  {car.imageUrls.length} снимки
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="w-full h-[500px] md:h-[600px] bg-gradient-to-br from-slate-700 to-slate-800 flex items-center justify-center">
+              <div className="text-center">
+                <span className="text-slate-500 text-lg block mb-2">Няма снимка</span>
+                <span className="text-slate-600 text-sm">Снимката ще бъде добавена скоро</span>
+              </div>
+            </div>
+          )}
+        </div>
 
+        {/* Галерия с миниатюри (ако има повече снимки) */}
+        {car.imageUrls && car.imageUrls.length > 1 && (
+          <div className="mb-8">
+            <h2 className="text-xl font-semibold text-white mb-4">Допълнителни снимки</h2>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {car.imageUrls.slice(1).map((imageUrl, index) => (
+                <div 
+                  key={index}
+                  className="relative aspect-video rounded-lg overflow-hidden cursor-pointer hover:opacity-80 transition-opacity border-2 border-slate-700 hover:border-[#70FFE2]"
+                  onClick={() => {
+                    // Може да добавиш функционалност за промяна на главната снимка
+                    const newUrls = [imageUrl, ...car.imageUrls!.filter((_, i) => i !== index + 1)];
+                    setCar({ ...car, imageUrls: newUrls });
+                  }}
+                >
+                  <img 
+                    src={`http://localhost:5258${imageUrl}`} 
+                    alt={`${car.make} ${car.model} - Снимка ${index + 2}`}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
         {/* Карта */}
         <div className="bg-slate-800 shadow-xl rounded-xl p-8 text-slate-200 space-y-8">
           {/* Основна информация */}

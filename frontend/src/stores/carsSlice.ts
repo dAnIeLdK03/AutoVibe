@@ -15,7 +15,7 @@ export interface Car{
 
     userId: number;
 
-    imageUrls?: string;
+    imageUrls?: string[];
 }
 
 export interface CarState{

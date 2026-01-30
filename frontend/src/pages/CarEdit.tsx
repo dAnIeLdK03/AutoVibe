@@ -4,6 +4,7 @@ import { useSelector } from "react-redux";
 import { useParams } from "react-router";
 import { useNavigate } from "react-router-dom";
 import { getCarById, updateCar } from "../services/carsService";
+import { uploadImage } from "../services/imageService";
 
 export default function CarEdit() {
   const { id } = useParams();
@@ -30,7 +31,8 @@ export default function CarEdit() {
 
   });
 
- 
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchCar = async () => {
@@ -90,10 +92,21 @@ export default function CarEdit() {
       setLoading(false);
       return;
     }
+    let imageUrls: string[] | undefined;
+    if(imageFile){
+      try{
+        const imageUrl = await uploadImage(imageFile);
+        imageUrls = [imageUrl];
+      }catch(error){
+        setError("Unable to upload image.");
+        setLoading(false);
+        return;
+      }
+    }
     
     try {
       const {sellerId, ...payload } = car;
-      await updateCar(Number(id), payload);
+      await updateCar(Number(id), payload, imageUrls);
       navigate(`/cars/${id}`);
     } catch (error: any) {
       // Extract the actual error message from the backend
@@ -126,6 +139,28 @@ export default function CarEdit() {
       setLoading(false);
     }
   };
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const selectedFile = e.target.files?.[0] || null;
+        if(selectedFile){
+          if (imagePreview) {
+            URL.revokeObjectURL(imagePreview);
+          }
+          
+          setImageFile(selectedFile);
+          const objectUrl = URL.createObjectURL(selectedFile);
+          setImagePreview(objectUrl);
+        }
+      };
+
+    useEffect(() => {
+      return () => {
+        if (imagePreview) {
+          URL.revokeObjectURL(imagePreview);
+        }
+      };
+    }, [imagePreview]);
+
 
   if(!id){
     return <h2>No car selected.</h2>;
@@ -230,6 +265,18 @@ export default function CarEdit() {
             onChange={(e) => setCar({ ...car, description: e.target.value })}
             className="w-full border p-2 rounded h-24"
           />
+
+          <label className="block text-sm font-medium text-gray-700">
+          Image
+        <input 
+          type='file'
+          name="image"
+          accept='image/*'
+          onChange={handleImageChange}
+          className="w-full border p-2 rounded"
+        />
+        </label>
+        {imagePreview && <img src={imagePreview} alt="Image preview" className="w-full h-auto" />}
 
           <button
             type="submit"
