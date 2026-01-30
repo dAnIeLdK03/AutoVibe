@@ -114,7 +114,8 @@ namespace Autovibe.API.Controllers
                 Description = createDto.Description,
                 UserId = createDto.UserId,
                 CreatedAt = DateTime.Now,
-                UpdatedAt = null
+                UpdatedAt = null,
+                ImageUrls = createDto.ImageUrls
             };
 
             _context.Cars.Add(car);
@@ -147,7 +148,9 @@ namespace Autovibe.API.Controllers
                 SellerId = createdCar.UserId,
                 SellerFirstName = createdCar.User.FirstName,
                 SellerLastName = createdCar.User.LastName,
-                SellerPhoneNumber = createdCar.User.PhoneNumber
+                SellerPhoneNumber = createdCar.User.PhoneNumber,
+
+                ImageUrls = createdCar.ImageUrls
             };
 
             return CreatedAtAction(nameof(GetCar), new { id = result.Id }, result);
@@ -182,6 +185,8 @@ namespace Autovibe.API.Controllers
             car.Description = updateDto.Description;
             car.UpdatedAt = DateTime.Now;
 
+            car.ImageUrls = updateDto.ImageUrls;
+
             await _context.SaveChangesAsync();
 
             var createdCar = await _context.Cars
@@ -210,7 +215,9 @@ namespace Autovibe.API.Controllers
                 SellerId = createdCar.UserId,
                 SellerFirstName = createdCar.User.FirstName,
                 SellerLastName = createdCar.User.LastName,
-                SellerPhoneNumber = createdCar.User.PhoneNumber
+                SellerPhoneNumber = createdCar.User.PhoneNumber,
+
+                ImageUrls = createdCar.ImageUrls
             };
         
             return Ok(result);
