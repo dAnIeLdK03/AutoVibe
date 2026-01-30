@@ -17,4 +17,6 @@ public class CarListDto
     public string? ShortDescription {get; set; } = string.Empty;
 
     public int UserId {get; set; }
-}
+
+    public List<string> ImageUrls {get; set; } = new List<string>();
+ }
