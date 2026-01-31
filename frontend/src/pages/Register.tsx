@@ -18,16 +18,19 @@ function Register() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if(password != confirmPassword){
+    if(password !== confirmPassword){
       setError("Passwords do not match.");
       return;
     }
     setLoading(true);
+    setError(null);
     try{
       await register({ email, password, confirmPassword, firstName, lastName, phoneNumber});
       navigate("/login");
     }catch(error : any){
-      setError("Something went wrong.");
+      console.error("Registration error:", error);
+      const errorMessage = error.response?.data || error.message || "Something went wrong.";
+      setError(typeof errorMessage === 'string' ? errorMessage : JSON.stringify(errorMessage));
     }
     finally{
       setLoading(false);
