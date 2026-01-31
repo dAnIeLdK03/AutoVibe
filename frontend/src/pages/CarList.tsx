@@ -39,7 +39,7 @@ function CarList() {
   
 
   return (
-    <div className="min-h-screen bg-slate-900 font-sans p-6 md:p-12">
+    <div className="min-h-screen bg-slate-900 font-sans p-6 md:p-12 pt-20">
       <div className="max-w-7xl mx-auto">
         <div>
               <button className="px-5 py-2.5 bg-slate-700 hover:bg-[#70FFE2] text-white hover:text-slate-900 font-bold rounded-xl transition-all duration-300 text-sm shadow-lg" onClick={() => navigate("/cars/my")}>

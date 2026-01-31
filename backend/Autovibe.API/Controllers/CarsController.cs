@@ -170,14 +170,19 @@ namespace Autovibe.API.Controllers
                 return BadRequest(ModelState);
             }
 
+            
+
             var car = await _context.Cars
                 .FirstOrDefaultAsync(c => c.Id == id);
 
+            
             if (car == null)
             {
                 return NotFound();
             }
 
+            
+            
             car.Make = updateDto.Make;
             car.Model = updateDto.Model;
             car.Year = updateDto.Year;

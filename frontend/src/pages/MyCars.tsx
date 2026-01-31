@@ -67,7 +67,7 @@ function MyCars() {
 
  
   return (
-    <div className="min-h-screen bg-slate-900 font-sans p-6 md:p-12">
+    <div className="min-h-screen bg-slate-900 font-sans p-6 md:p-12 pt-20">
       <div className="max-w-7xl mx-auto">
         
         {/* Header Section */}
@@ -98,7 +98,7 @@ function MyCars() {
         {/* 3. Empty State */}
         {!loading && cars.length === 0 ? (
           <div className="text-center py-20 bg-slate-800/30 rounded-3xl border border-dashed border-slate-700">
-            <p className="text-slate-400 text-lg mb-6">Нямате създадени обяви. Създайте първата!</p>
+            <p className="text-slate-400 text-lg mb-6">You don't have any cars yet!</p>
             
           </div>
         ) : (
