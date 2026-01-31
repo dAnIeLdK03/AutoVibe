@@ -41,17 +41,13 @@ function CarList() {
   return (
     <div className="min-h-screen bg-slate-900 font-sans p-6 md:p-12 pt-20">
       <div className="max-w-7xl mx-auto">
-        <div>
-              <button className="px-5 py-2.5 bg-slate-700 hover:bg-[#70FFE2] text-white hover:text-slate-900 font-bold rounded-xl transition-all duration-300 text-sm shadow-lg" onClick={() => navigate("/cars/my")}>
-            My Cars
-          </button>
-          </div>
+        
         <div className="mb-12">
           <h1 className="text-4xl font-black text-white tracking-tight mb-2">
             Explore Our <span className="text-[#70FFE2]">Fleet</span>
           </h1>
           <p className="text-slate-400">Discover the perfect ride for your next journey.</p>
-          <button className="px-5 py-2.5 bg-slate-700 hover:bg-[#70FFE2] text-white hover:text-slate-900 font-bold rounded-xl transition-all duration-300 text-sm shadow-lg" onClick={() => isAuthenticated? navigate(`/cars/new`) : navigate("/login")}>
+          <button className="px-5 py-2.5 bg-slate-700 hover:bg-[#70FFE2] text-white hover:text-slate-900 font-bold rounded-xl transition-all duration-300 text-sm shadow-lg mt-3" onClick={() => isAuthenticated? navigate(`/cars/new`) : navigate("/login")}>
             {isAuthenticated? "Create new ad" : "Login to create new ad"}
           </button>
         </div>
